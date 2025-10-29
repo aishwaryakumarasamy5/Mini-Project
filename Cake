@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Birthday Cake Blow — Gift</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#ffb703;--pink:#ff6b9f}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{background:linear-gradient(180deg,#071029 0%, #0b1530 100%);display:flex;align-items:center;justify-content:center;padding:28px;color:#e6eef8}
+    .card{width:920px;max-width:100%;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(2,6,23,0.7);display:grid;grid-template-columns:430px 1fr;gap:24px}
+
+    /* personalization header */
+    .header{display:flex;flex-direction:column;gap:8px}
+    h1{margin:0;font-size:20px}
+    .subtitle{color:#9fb3d6;font-size:13px}
+
+    /* cake area */
+    .stage{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:18px}
+    .cake-wrap{position:relative;width:320px;height:260px}
+    .cake{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:260px}
+    .tier{background:linear-gradient(180deg,#fff 0%, #f2f2f9 100%);border-radius:18px;padding:18px;text-align:center;box-shadow:0 8px 18px rgba(2,6,23,0.35)}
+    .tier.small{width:40%;margin:0 auto;margin-top:-20px}
+    .tier.large{width:100%;margin-top:10px}
+    .icing{height:24px;background:linear-gradient(180deg,#ff6b9f,#ffb3d0);border-top-left-radius:18px;border-top-right-radius:18px;margin-bottom:8px}
+    .sprinkles{display:flex;gap:6px;justify-content:center}
+    .sprinkle{width:8px;height:8px;border-radius:3px;background:var(--accent);opacity:0.95;transform:rotate(20deg)}
+
+    /* candles */
+    .candles{position:absolute;top:22px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+    .candle{width:14px;height:56px;background:#fff;border-radius:4px;position:relative;box-shadow:inset 0 -6px 0 rgba(0,0,0,0.06)}
+    .candle .stripe{position:absolute;top:8px;left:0;right:0;height:6px;background:linear-gradient(90deg,#ffd6a5,#ffc6a5);opacity:0.9}
+    .flame{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:12px;height:20px;border-radius:50% 50% 50% 50%;filter:drop-shadow(0 6px 8px rgba(255,160,60,0.12));animation:flicker 180ms infinite}
+    .flame::before{content:'';position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:6px;height:10px;border-radius:50%;background:#fff}
+    .flame-inner{width:100%;height:100%;background:linear-gradient(180deg,#ffd65a,#ff8a00);border-radius:50%}
+    @keyframes flicker{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(0.95)}100%{transform:translateX(-50%) scale(1)} }
+
+    /* smoke */
+    .smoke{position:absolute;top:-16px;left:50%;transform:translateX(-50%);pointer-events:none}
+    .puff{width:8px;height:8px;border-radius:50%;background:rgba(200,210,220,0.25);margin:6px 0;opacity:0;animation:rise 1400ms forwards}
+    @keyframes rise{0%{transform:translateY(6px) scale(.6);opacity:0}40%{opacity:0.6}100%{transform:translateY(-64px) scale(1.6);opacity:0}}
+
+    /* right panel */
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .controls .panel{background:rgba(255,255,255,0.02);border-radius:12px;padding:12px}
+    label{font-size:13px;color:#cfe0fb}
+    input[type=text], input[type=range], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .buttons{display:flex;gap:8px;margin-top:6px}
+    button{cursor:pointer;padding:10px 12px;border-radius:10px;border:none;background:#1e293b;color:#e6eef8}
+    .primary{background:linear-gradient(90deg,#ff6b9f,#ffb703);color:#082032}
+    .danger{background:#ef4444}
+    .status{font-size:13px;color:#9fb3d6}
+    .share-info{font-size:13px;color:#cde0ff}
+
+    /* small responsive */
+    @media (max-width:860px){.card{grid-template-columns:1fr;align-items:center}.stage{order:2}.controls{order:1}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="stage">
+      <div class="header">
+        <h1 id="title">Happy Birthday, <span id="recipient">Vicky</span> 🎉</h1>
+        <div class="subtitle">Blow out the candles — click any candle or blow into your microphone (if allowed).</div>
+      </div>
+
+      <div class="cake-wrap" id="cakeArea">
+        <div class="candles" id="candles">
+          <!-- candles injected by JS -->
+        </div>
+
+        <div class="cake" aria-hidden="true">
+          <div class="tier small">
+            <div class="icing"></div>
+            <div class="sprinkles">
+              <div class="sprinkle" style="background:#ff6b9f"></div>
+              <div class="sprinkle" style="background:#8ce99a"></div>
+              <div class="sprinkle" style="background:#ffd6a5"></div>
+            </div>
+          </div>
+          <div class="tier large">
+            <div class="icing"></div>
+            <div style="height:12px"></div>
+            <div style="font-weight:600;color:#083344">Make a wish!</div>
+          </div>
+        </div>
+
+        <div class="smoke" id="smokeHolder" aria-hidden="true"></div>
+      </div>
+
+      <div style="margin-top:12px;text-align:center" class="status" id="status">Candles lit — good luck!</div>
+    </div>
+
+    <div class="controls">
+      <div class="panel">
+        <label>Recipient name</label>
+        <input id="nameInput" type="text" value="Vicky" placeholder="Type a name..." />
+      </div>
+
+      <div class="panel">
+        <label>Number of candles: <span id="candleCountLabel">5</span></label>
+        <input id="candleRange" type="range" min="1" max="10" value="5" />
+      </div>
+
+      <div class="panel">
+        <label>Blow sensitivity (microphone)</label>
+        <input id="sensitivity" type="range" min="0.01" max="1" step="0.01" value="0.12" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="micBtn">Enable Microphone</button>
+          <button id="resetBtn" class="danger">Relight Candles</button>
+        </div>
+        <div style="margin-top:8px" class="share-info">Note: microphone requires a secure page (https) and user permission.</div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:8px">
+            <button id="downloadBtn">Download .html</button>
+            <button id="copyBtn" class="primary">Copy HTML to Clipboard</button>
+          </div>
+          <div style="font-size:13px;color:#9fb3d6">Share this gift!</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="font-size:13px;color:#cfe0fb">Tips: personalize the name, adjust candles, then use the download button to save and send the file. If hosting online (GitHub Pages / Netlify), microphone features will work on https.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --- configuration & helpers ---
+  let state = {candles:5, lit:[], micStream:null, audioCtx:null, analyser:null, sensitivity:0.12};
+
+  const recipientEl = document.getElementById('recipient');
+  const nameInput = document.getElementById('nameInput');
+  const range = document.getElementById('candleRange');
+  const candleCountLabel = document.getElementById('candleCountLabel');
+  const candlesHolder = document.getElementById('candles');
+  const smokeHolder = document.getElementById('smokeHolder');
+  const status = document.getElementById('status');
+  const micBtn = document.getElementById('micBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const sensitivityInput = document.getElementById('sensitivity');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const copyBtn = document.getElementById('copyBtn');
+
+  nameInput.addEventListener('input',e=>{recipientEl.textContent = e.target.value || 'Friend'});
+  range.addEventListener('input',e=>{state.candles = +e.target.value;candleCountLabel.textContent = state.candles; renderCandles();});
+  sensitivityInput.addEventListener('input',e=>{state.sensitivity = +e.target.value});
+
+  function renderCandles(){
+    candlesHolder.innerHTML = '';
+    state.lit = [];
+    for(let i=0;i<state.candles;i++){
+      const c = document.createElement('div'); c.className='candle'; c.dataset.index=i;
+      const stripe = document.createElement('div'); stripe.className='stripe'; c.appendChild(stripe);
+      const flame = document.createElement('div'); flame.className='flame'; const inner = document.createElement('div'); inner.className='flame-inner'; flame.appendChild(inner);
+      const smoke = document.createElement('div'); smoke.className='smoke';
+      c.appendChild(flame);
+      c.addEventListener('click',()=>extinguishCandle(i));
+      candlesHolder.appendChild(c);
+      state.lit.push(true)
+    }
+    updateStatus();
+  }
+
+  function extinguishCandle(index){
+    if(!state.lit[index]) return;
+    state.lit[index] = false;
+    const candle = candlesHolder.querySelector(`.candle[data-index='${index}']`);
+    if(!candle) return;
+    // remove flame with animation
+    const flame = candle.querySelector('.flame');
+    if(flame) flame.style.transition='transform 380ms ease, opacity 380ms'; flame.style.transform='scale(.2) translateY(8px)'; flame.style.opacity='0';
+    // create smoke puffs
+    createSmoke(candle);
+    updateStatus();
+    checkAllExtinguished();
+  }
+
+  function createSmoke(candle){
+    for(let i=0;i<3;i++){
+      const puff = document.createElement('div'); puff.className='puff'; puff.style.width = (6+Math.random()*10)+'px'; puff.style.height = (6+Math.random()*10)+'px';
+      puff.style.left = (Math.random()*20 - 10)+'px';
+      puff.style.position='absolute';
+      puff.style.opacity='0';
+      smokeHolder.appendChild(puff);
+      // schedule removal
+      setTimeout(()=>{puff.style.opacity='1';}, 80*i);
+      setTimeout(()=>{puff.remove();}, 1700 + i*200 + Math.random()*300);
+    }
+  }
+
+  function relightAll(){
+    state.lit = state.lit.map(()=>true);
+    const flames = candlesHolder.querySelectorAll('.flame');
+    flames.forEach(f=>{f.style.transition='';f.style.opacity='1';f.style.transform='translateX(-50%) scale(1)';});
+    updateStatus();
+  }
+
+  function updateStatus(){
+    const remaining = state.lit.filter(Boolean).length;
+    if(remaining === 0) status.textContent = 'All candles are out — Happy Birthday! 🎉 Make a wish.';
+    else status.textContent = `${remaining} candle${remaining>1?'s':''} lit — blow to extinguish.`;
+  }
+
+  function checkAllExtinguished(){
+    if(state.lit.every(v=>!v)){
+      // celebration animation
+      confettiBurst();
+    }
+  }
+
+  // --- simple confetti using DOM ---
+  function confettiBurst(){
+    for(let i=0;i<28;i++){
+      const p = document.createElement('div'); p.style.position='absolute'; p.style.left = (40 + Math.random()*440)+'px'; p.style.top = (40 + Math.random()*100)+'px'; p.style.width='8px'; p.style.height='12px'; p.style.background = ['#ff6b9f','#ffd6a5','#8ce99a','#66d9ff'][Math.floor(Math.random()*4)]; p.style.transform = 'rotate('+Math.random()*360+'deg)'; p.style.borderRadius='2px'; p.style.opacity='0.95'; p.style.pointerEvents='none'; p.style.transition='transform 1200ms cubic-bezier(.18,.8,.4,1), opacity 1200ms';
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>{ p.style.transform = `translateY(${160+Math.random()*240}px) translateX(${(Math.random()-0.5)*420}px) rotate(${Math.random()*720}deg)`; p.style.opacity='0'; });
+      setTimeout(()=>p.remove(),1350);
+    }
+  }
+
+  // --- microphone based blow detection ---
+  let listening = false;
+  micBtn.addEventListener('click',async ()=>{
+    if(listening){ stopMic(); micBtn.textContent='Enable Microphone'; return; }
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      state.micStream = stream;
+      micBtn.textContent='Disable Microphone'; listening = true;
+      startAudioProcessing(stream);
+    }catch(err){ alert('Microphone permission denied or unavailable. Try using the click-to-blow option.'); }
+  });
+
+  function startAudioProcessing(stream){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext(); state.audioCtx = ctx;
+    const source = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 2048; state.analyser = analyser;
+    source.connect(analyser);
+    const data = new Float32Array(analyser.fftSize);
+
+    function check(){
+      analyser.getFloatTimeDomainData(data);
+      // compute RMS
+      let sum=0; for(let i=0;i<data.length;i++){ sum += data[i]*data[i]; }
+      const rms = Math.sqrt(sum/data.length);
+      // when loudness spike (breath) exceeds sensitivity threshold, extinguish some candles
+      if(rms > state.sensitivity){
+        // extinguish 1-3 random lit candles
+        const litIndices = state.lit.map((v,i)=>v?i:-1).filter(i=>i>=0);
+        if(litIndices.length){
+          const toBlow = Math.min(litIndices.length, 1 + Math.floor(rms*6));
+          for(let i=0;i<toBlow;i++){
+            const choice = litIndices[Math.floor(Math.random()*litIndices.length)];
+            extinguishCandle(choice);
+          }
+        }
+      }
+      if(listening) requestAnimationFrame(check);
+    }
+    check();
+  }
+
+  function stopMic(){
+    listening = false;
+    if(state.micStream){ state.micStream.getTracks().forEach(t=>t.stop()); state.micStream=null; }
+    if(state.audioCtx){ state.audioCtx.close(); state.audioCtx=null; state.analyser=null; }
+  }
+
+  resetBtn.addEventListener('click',()=>{relightAll();updateStatus();});
+
+  // --- download / copy helpers ---
+  downloadBtn.addEventListener('click', ()=>{
+    const html = document.documentElement.outerHTML;
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download = `birthday-for-${(nameInput.value||'friend').replace(/\s+/g,'_')}.html`; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  copyBtn.addEventListener('click', async ()=>{
+    const html = '<!doctype html>\n' + document.documentElement.outerHTML;
+    try{ await navigator.clipboard.writeText(html); alert('HTML copied to clipboard — paste into a file and save as .html'); }
+    catch(e){ alert('Copy failed — your browser may block clipboard. Use Download instead.'); }
+  });
+
+  // extinguish by simulated wind (for clicking outside)
+  document.getElementById('cakeArea').addEventListener('dblclick',()=>{
+    // extinguish a random lit candle
+    const litIndices = state.lit.map((v,i)=>v?i:-1).filter(i=>i>=0);
+    if(litIndices.length) extinguishCandle(litIndices[Math.floor(Math.random()*litIndices.length)]);
+  });
+
+  // init
+  renderCandles();
+  updateStatus();
+
+  // make sure smoke container is positioned near candles
+  function positionSmoke(){
+    const rect = candlesHolder.getBoundingClientRect();
+    const parentRect = document.getElementById('cakeArea').getBoundingClientRect();
+    smokeHolder.style.left = (rect.left - parentRect.left + rect.width/2) + 'px';
+    smokeHolder.style.top = (rect.top - parentRect.top - 22) + 'px';
+    smokeHolder.style.position = 'absolute';
+  }
+  window.addEventListener('resize', positionSmoke);
+  setTimeout(positionSmoke,200);
+
+</script>
+</body>
+</html>
